@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大纲助手 — 你的AI创作搭档</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 主内容区 -->
+    <div id="app">
+        <!-- 想法梳理面板（默认显示） -->
+        <div class="panel panel-active" id="panel-idea" data-theme="idea">
+            <div class="panel-header">
+                <h1>想法梳理</h1>
+                <p class="panel-subtitle">把脑子里的碎片想法丢进来，AI帮你理清逻辑</p>
+            </div>
+            <div class="panel-body">
+                <div class="chat-area" id="idea-chat">
+                    <div class="welcome-message">
+                        <div class="welcome-icon">✦</div>
+                        <h2>开始你的创作</h2>
+                        <p>随便聊聊你想写的故事，我可以帮你：<br>
+                        理清逻辑链 · 找出矛盾点 · 补全缺失部分</p>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <textarea id="idea-input" placeholder="随便写，比如：真千金回归豪门，全家都偏心假千金，她决定不讨好了，自己搞事业翻盘..." rows="3"></textarea>
+                    <button class="send-btn" id="idea-send">
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 灵感记录面板 -->
+        <div class="panel" id="panel-inspiration" data-theme="inspiration">
+            <div class="panel-header">
+                <h1>灵感记录</h1>
+                <p class="panel-subtitle">记下灵感碎片，选几个让AI碰撞出新故事</p>
+            </div>
+            <div class="panel-body">
+                <div class="inspiration-area">
+                    <!-- 输入区 -->
+                    <div class="inspiration-input-area">
+                        <input type="text" id="inspiration-input" placeholder="输入一条灵感，比如：替身文学、追妻火葬场、重生打脸..." />
+                        <select id="inspiration-category">
+                            <option value="">分类（可选）</option>
+                            <option value="genre">题材</option>
+                            <option value="character">人物</option>
+                            <option value="scene">场景</option>
+                            <option value="plot">情节</option>
+                            <option value="setting">设定</option>
+                        </select>
+                        <button class="add-btn" id="inspiration-add">+ 记录</button>
+                    </div>
+
+                    <!-- 标签区 -->
+                    <div class="inspiration-tags" id="inspiration-tags"></div>
+
+                    <!-- 碰撞区（始终可见） -->
+                    <div class="collision-zone">
+                        <div class="collision-card" id="combine-card">
+                            <div class="collision-card-header">
+                                <span class="collision-icon">✦</span>
+                                <h3>智能组合</h3>
+                            </div>
+                            <p class="collision-desc">选中 <b>2个以上</b> 灵感标签，AI帮你碰撞出新故事方案</p>
+                            <div class="collision-selected" id="combine-selected">已选 0 个</div>
+                            <button class="collision-btn" id="combine-btn" disabled>开始碰撞</button>
+                        </div>
+                        <div class="collision-card" id="inject-card">
+                            <div class="collision-card-header">
+                                <span class="collision-icon">◈</span>
+                                <h3>注入故事线</h3>
+                            </div>
+                            <p class="collision-desc">选中灵感标签 + 输入已有大纲，AI帮你拓展分支</p>
+                            <textarea id="inject-storyline" placeholder="粘贴你的已有故事线/大纲..." rows="2"></textarea>
+                            <div class="collision-selected" id="inject-selected">已选 0 个</div>
+                            <button class="collision-btn" id="inject-btn" disabled>注入灵感</button>
+                        </div>
+                    </div>
+
+                    <!-- 结果区 -->
+                    <div class="collision-results" id="collision-results"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全貌地图面板 -->
+        <div class="panel" id="panel-map" data-theme="map">
+            <div class="panel-header">
+                <h1>全貌地图</h1>
+                <p class="panel-subtitle">故事仪表盘，一览全局</p>
+            </div>
+            <div class="panel-body">
+                <div class="map-canvas" id="map-canvas"></div>
+            </div>
+        </div>
+
+        <!-- 设置齿轮 -->
+        <div class="settings-trigger" id="settings-trigger">⚙</div>
+
+        <!-- 设置弹窗 -->
+        <div class="settings-modal" id="settings-modal">
+            <div class="settings-content">
+                <h2>AI 设置</h2>
+                <p class="settings-desc">配置AI API — 推荐使用代理模式（密钥安全）或直连模式</p>
+
+                <div class="settings-mode-switch">
+                    <button class="mode-tab active" data-mode="proxy">代理模式（推荐）</button>
+                    <button class="mode-tab" data-mode="direct">直连模式</button>
+                </div>
+
+                <div id="proxy-fields">
+                    <div class="settings-field">
+                        <label>代理地址</label>
+                        <input type="text" id="setting-proxy" placeholder="https://你的Worker名.xxx.workers.dev" />
+                        <p class="field-hint">Cloudflare Worker地址，密钥存在服务端，前端看不到</p>
+                    </div>
+                </div>
+
+                <div id="direct-fields" style="display:none;">
+                    <div class="settings-field">
+                        <label>API 端点</label>
+                        <input type="text" id="setting-endpoint" placeholder="https://api.deepseek.com/v1/chat/completions" />
+                    </div>
+                    <div class="settings-field">
+                        <label>API 密钥</label>
+                        <input type="password" id="setting-key" placeholder="sk-..." />
+                        <p class="field-hint">⚠️ 直连模式密钥会暴露在浏览器中，仅限本地测试</p>
+                    </div>
+                </div>
+
+                <div class="settings-field">
+                    <label>模型名称</label>
+                    <input type="text" id="setting-model" placeholder="deepseek-chat" />
+                </div>
+                <div class="settings-actions">
+                    <button class="settings-save" id="settings-save">保存</button>
+                    <button class="settings-cancel" id="settings-cancel">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品信息 -->
+        <div class="product-info-trigger" id="product-info-trigger">ℹ</div>
+        <div class="product-info-modal" id="product-info-modal">
+            <div class="product-info-content">
+                <h2>大纲助手</h2>
+                <p class="subtitle">AI驱动的网文创作大纲工具</p>
+                <div class="info-row"><span class="info-label">产品定位</span><span class="info-value">网文作者的AI创作搭档</span></div>
+                <div class="info-row"><span class="info-label">核心功能</span><span class="info-value">想法梳理 · 灵感组合 · 全貌地图</span></div>
+                <div class="info-row"><span class="info-label">技术栈</span><span class="info-value">HTML + CSS + JS + D3.js</span></div>
+                <div class="info-row"><span class="info-label">AI引擎</span><span class="info-value">DeepSeek API</span></div>
+                <div class="info-row"><span class="info-label">可视化</span><span class="info-value">D3.js力导向图（光线纠缠效果）</span></div>
+                <div class="info-row"><span class="info-label">数据存储</span><span class="info-value">浏览器本地（localStorage）</span></div>
+                <div class="info-row"><span class="info-label">开发者角色</span><span class="info-value">需求分析 · 产品设计 · Prompt工程 · 全栈实现</span></div>
+            </div>
+        </div>
+
+        <!-- Toast通知容器 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 浮动气泡导航 -->
+        <div class="bubble-nav" id="bubble-nav">
+            <div class="bubble" id="bubble-idea" data-target="idea">
+                <span>想法梳理</span>
+            </div>
+            <div class="bubble" id="bubble-inspiration" data-target="inspiration">
+                <span>灵感记录</span>
+            </div>
+            <div class="bubble" id="bubble-map" data-target="map">
+                <span>全貌地图</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="ai-config.js"></script>
+    <script src="map-viz.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
