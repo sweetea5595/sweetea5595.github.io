@@ -680,6 +680,53 @@
         });
 
         showToast('大纲助手已就绪 ✦', 'success');
+
+        // 移动端：把气泡导航移到输入框上方
+        layoutBubbleNav();
+        window.addEventListener('resize', layoutBubbleNav);
+    }
+
+    function layoutBubbleNav() {
+        var nav = document.getElementById('bubble-nav');
+        var app = document.getElementById('app');
+        if (!nav || !app) return;
+
+        if (window.innerWidth <= 768) {
+            // 移动端：插入到每个 panel-body 的合适位置
+            document.querySelectorAll('.panel-body').forEach(function(body) {
+                if (body.querySelector('.bubble-nav-inline')) return;
+
+                var clone = nav.cloneNode(true);
+                clone.classList.add('bubble-nav-inline');
+                clone.querySelectorAll('.bubble').forEach(function(b) {
+                    b.addEventListener('click', function() {
+                        switchPanel(b.dataset.target);
+                        document.querySelectorAll('.bubble').forEach(function(bb) {
+                            bb.classList.toggle('bubble-active', bb.dataset.target === currentPanel);
+                        });
+                    });
+                });
+
+                // 想法梳理：插入到 input-area 前面
+                var inputArea = body.querySelector('.input-area');
+                if (inputArea) {
+                    body.insertBefore(clone, inputArea);
+                    return;
+                }
+                // 灵感记录：插入到碰撞区前面（输入框在顶部，气泡放在碰撞区上方）
+                var collisionZone = body.querySelector('.collision-zone');
+                if (collisionZone) {
+                    collisionZone.parentNode.insertBefore(clone, collisionZone);
+                    return;
+                }
+                // 全貌地图：追加到末尾
+                body.appendChild(clone);
+            });
+            nav.style.display = 'none';
+        } else {
+            nav.style.display = '';
+            document.querySelectorAll('.bubble-nav-inline').forEach(function(n) { n.remove(); });
+        }
     }
 
     if (document.readyState === 'loading') {
