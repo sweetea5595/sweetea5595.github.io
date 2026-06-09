@@ -991,13 +991,24 @@ body {
 /* ==================== 移动端响应式 ==================== */
 
 @media (max-width: 768px) {
+    body {
+        overflow: auto;
+    }
+
     .panel {
         padding: 20px 16px;
         padding-right: 16px;
+        min-height: 100dvh;
+        min-height: 100vh;
     }
 
     .panel-body {
-        overflow: visible;
+        overflow: hidden;
+    }
+
+    .inspiration-area,
+    .chat-area {
+        min-height: 0;
     }
 
     .panel-header h1 {
