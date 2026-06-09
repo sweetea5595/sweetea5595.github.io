@@ -688,13 +688,11 @@
 
     function layoutBubbleNav() {
         var nav = document.getElementById('bubble-nav');
-        var app = document.getElementById('app');
-        if (!nav || !app) return;
+        if (!nav) return;
 
         if (window.innerWidth <= 768) {
-            // 移动端：插入到每个 panel-body 的合适位置
-            document.querySelectorAll('.panel-body').forEach(function(body) {
-                if (body.querySelector('.bubble-nav-inline')) return;
+            document.querySelectorAll('.panel').forEach(function(panel) {
+                if (panel.querySelector('.bubble-nav-inline')) return;
 
                 var clone = nav.cloneNode(true);
                 clone.classList.add('bubble-nav-inline');
@@ -707,20 +705,11 @@
                     });
                 });
 
-                // 想法梳理：插入到 input-area 前面
-                var inputArea = body.querySelector('.input-area');
-                if (inputArea) {
-                    body.insertBefore(clone, inputArea);
-                    return;
+                // 插到 panel-header 后面、panel-body 前面（不在 overflow:hidden 容器内）
+                var body = panel.querySelector('.panel-body');
+                if (body) {
+                    panel.insertBefore(clone, body);
                 }
-                // 灵感记录：插入到碰撞区前面（输入框在顶部，气泡放在碰撞区上方）
-                var collisionZone = body.querySelector('.collision-zone');
-                if (collisionZone) {
-                    collisionZone.parentNode.insertBefore(clone, collisionZone);
-                    return;
-                }
-                // 全貌地图：追加到末尾
-                body.appendChild(clone);
             });
             nav.style.display = 'none';
         } else {
