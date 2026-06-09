@@ -705,10 +705,12 @@
                     });
                 });
 
-                // 插到 panel-header 后面、panel-body 前面（不在 overflow:hidden 容器内）
-                var body = panel.querySelector('.panel-body');
-                if (body) {
-                    panel.insertBefore(clone, body);
+                // 插到 panel 最顶部（header 前面）
+                var header = panel.querySelector('.panel-header');
+                if (header) {
+                    panel.insertBefore(clone, header);
+                } else {
+                    panel.prepend(clone);
                 }
             });
             nav.style.display = 'none';
