@@ -1006,11 +1006,6 @@ body {
         overflow: hidden;
     }
 
-    .inspiration-area,
-    .chat-area {
-        min-height: 0;
-    }
-
     .panel-header h1 {
         font-size: 24px;
     }
